@@ -213,6 +213,14 @@ consoleintr(int (*getc)(void))
         consputc(BACKSPACE);
       }
       break;
+    case C('C'):
+      break;
+    case C('X'):
+      break;
+    case C('V'):
+      break;
+    case C('B'):
+      break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
         c = (c == '\r') ? '\n' : c;
