@@ -193,6 +193,36 @@ struct {
 } clipboard;
 
 
+void
+clrline() {
+  while(input.e != input.w &&
+        input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+    input.e--;
+    consputc(BACKSPACE);
+  }
+}
+
+void
+copyinput() {
+  clipboard.end = input.e - input.w;
+  clipboard.read = input.w;
+  while(clipboard.read < input.e) {
+    clipboard.buf[clipboard.read - input.w] = input.buf[clipboard.read % INPUT_BUF];
+    clipboard.read++;
+  }
+}
+
+void
+pastecb() {
+  clipboard.read = 0;
+  while (clipboard.read < clipboard.end) {
+    input.buf[input.e++ % INPUT_BUF] = clipboard.buf[clipboard.read];
+    consputc(clipboard.buf[clipboard.read]);
+    clipboard.read++;
+  }
+}
+
+
 #define C(x)  ((x)-'@')  // Control-x
 
 void
@@ -208,11 +238,7 @@ consoleintr(int (*getc)(void))
       doprocdump = 1;
       break;
     case C('U'):  // Kill line.
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        consputc(BACKSPACE);
-      }
+      clrline();
       break;
     case C('H'): case '\x7f':  // Backspace
       if(input.e != input.w){
@@ -221,46 +247,18 @@ consoleintr(int (*getc)(void))
       }
       break;
     case C('C'):
-      clipboard.end = input.e - input.w;
-      clipboard.read = input.w;
-      while(clipboard.read < input.e) {
-        clipboard.buf[clipboard.read - input.w] = input.buf[clipboard.read % INPUT_BUF];
-        clipboard.read++;
-      }
+      copyinput();
       break;
     case C('X'):
-      clipboard.end = input.e - input.w;
-      clipboard.read = input.w;
-      while(clipboard.read < input.e) {
-        clipboard.buf[clipboard.read - input.w] = input.buf[clipboard.read % INPUT_BUF];
-        clipboard.read++;
-      }
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        consputc(BACKSPACE);
-      }
+      copyinput();
+      clrline();
       break;
     case C('V'):
-      clipboard.read = 0;
-      while (clipboard.read < clipboard.end) {
-        input.buf[input.e++ % INPUT_BUF] = clipboard.buf[clipboard.read];
-        consputc(clipboard.buf[clipboard.read]);
-        clipboard.read++;
-      }
+      pastecb();
       break;
     case C('B'):
-      clipboard.read = 0;
-      while(input.e != input.w && // Kill Line
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        consputc(BACKSPACE);
-      }
-      while(clipboard.read < clipboard.end) { // Paste
-        input.buf[input.e++ % INPUT_BUF] = clipboard.buf[clipboard.read];
-        consputc(clipboard.buf[clipboard.read]);
-        clipboard.read++;
-      }
+      clrline();
+      pastecb();
       break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
