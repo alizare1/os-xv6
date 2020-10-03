@@ -186,6 +186,13 @@ struct {
   uint e;  // Edit index
 } input;
 
+struct {
+  char buf[INPUT_BUF];
+  uint end;
+  uint read;
+} clipboard;
+
+
 #define C(x)  ((x)-'@')  // Control-x
 
 void
@@ -214,10 +221,22 @@ consoleintr(int (*getc)(void))
       }
       break;
     case C('C'):
+      clipboard.end = input.e - input.w;
+      clipboard.read = input.w;
+      while(clipboard.read < input.e) {
+        clipboard.buf[clipboard.read - input.w] = input.buf[clipboard.read % INPUT_BUF];
+        clipboard.read++;
+      }
       break;
     case C('X'):
       break;
     case C('V'):
+      clipboard.read = 0;
+      while (clipboard.read < clipboard.end) {
+        input.buf[input.e++ % INPUT_BUF] = clipboard.buf[clipboard.read];
+        consputc(clipboard.buf[clipboard.read]);
+        clipboard.read++;
+      }
       break;
     case C('B'):
       break;
