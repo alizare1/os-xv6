@@ -229,6 +229,17 @@ consoleintr(int (*getc)(void))
       }
       break;
     case C('X'):
+      clipboard.end = input.e - input.w;
+      clipboard.read = input.w;
+      while(clipboard.read < input.e) {
+        clipboard.buf[clipboard.read - input.w] = input.buf[clipboard.read % INPUT_BUF];
+        clipboard.read++;
+      }
+      while(input.e != input.w &&
+            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+        input.e--;
+        consputc(BACKSPACE);
+      }
       break;
     case C('V'):
       clipboard.read = 0;
