@@ -239,6 +239,17 @@ consoleintr(int (*getc)(void))
       }
       break;
     case C('B'):
+      clipboard.read = 0;
+      while(input.e != input.w && // Kill Line
+            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+        input.e--;
+        consputc(BACKSPACE);
+      }
+      while(clipboard.read < clipboard.end) { // Paste
+        input.buf[input.e++ % INPUT_BUF] = clipboard.buf[clipboard.read];
+        consputc(clipboard.buf[clipboard.read]);
+        clipboard.read++;
+      }
       break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
