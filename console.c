@@ -219,6 +219,11 @@ pastecb() {
     input.buf[input.e++ % INPUT_BUF] = clipboard.buf[clipboard.read];
     consputc(clipboard.buf[clipboard.read]);
     clipboard.read++;
+    if (input.e == input.r+INPUT_BUF) {
+      input.w=input.e;
+      wakeup(&input.r);
+      break;
+    }
   }
 }
 
