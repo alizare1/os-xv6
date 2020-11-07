@@ -124,6 +124,7 @@ void            zero_traces(void);
 void            print_traces(void);
 void            set_trace_state(int);
 int             get_trace_state(void);
+int             reverse_num(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

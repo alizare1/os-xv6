@@ -119,3 +119,11 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_reverse_number(void)
+{
+  int number = myproc()->tf->ebx;
+  cprintf("Kernel: sys_reverse_number() called for number: %d\n" , number);
+  return reverse_num(number);
+}
