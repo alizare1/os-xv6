@@ -120,6 +120,10 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+void            zero_traces(void);
+void            print_traces(void);
+void            set_trace_state(int);
+int             get_trace_state(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

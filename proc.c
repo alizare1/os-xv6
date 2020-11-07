@@ -10,6 +10,7 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  int trace_state;
 } ptable;
 
 static struct proc *initproc;
@@ -531,4 +532,89 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+void
+zero_traces(void)
+{
+  struct proc *p;
+  int i;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    for (i = 0; i < SYS_CALL_COUNT; i++)
+      p->syscalls[i] = 0;
+  }
+  release(&ptable.lock);
+}
+
+void
+print_traces(void)
+{
+  struct proc *p;
+  int i;
+
+  char names[SYS_CALL_COUNT][16] ={
+    "fork",
+    "exit",
+    "wait",
+    "pipe",
+    "read",
+    "kill",
+    "exec",
+    "fstat",
+    "chdir",
+    "dup",
+    "getpid",
+    "sbrk",
+    "sleep",
+    "uptime",
+    "open",
+    "write",
+    "mknod",
+    "unlink",
+    "link",
+    "mkdir",
+    "close",
+    "trace_syscalls"
+    };
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->state != UNUSED) {
+      if (p->pid == 2) continue;
+      cprintf("\n%s:\n", p->name);
+      for (i = 0; i < SYS_CALL_COUNT; i++) {
+        if (p->syscalls[i] != 0) {
+          cprintf("        %s: %d\n", names[i], p->syscalls[i]);
+        }
+      }
+    }
+  }
+  release(&ptable.lock);
+}
+
+void
+set_trace_state(int state)
+{
+  acquire(&ptable.lock);
+  if (state == 1 && ptable.trace_state == 0) {
+    release(&ptable.lock);
+    zero_traces();
+    acquire(&ptable.lock);
+  }
+  ptable.trace_state = state;
+  release(&ptable.lock);
+}
+
+int
+get_trace_state(void)
+{
+  int state;
+
+  acquire(&ptable.lock);
+  state = ptable.trace_state;
+  release(&ptable.lock);
+
+  return state;
 }

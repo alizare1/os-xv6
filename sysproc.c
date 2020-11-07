@@ -43,6 +43,36 @@ sys_getpid(void)
 }
 
 int
+sys_trace_syscalls(void)
+{
+  int state;
+  uint prev = ticks;
+
+  if(argint(0, &state) < 0 || state < 0 || state > 1)
+    return -1;
+
+  set_trace_state(state);
+  
+
+  if (myproc()->pid != 2) {
+    cprintf("sys_trace_syscalls: Trace state set to %d\n", state);
+    return 1;
+  }
+
+  cprintf("\nsys_trace_syscalls: Process ID = 2 started! \nThis process will print traces if state is 1\n\n");
+  while(1) {
+    if (!get_trace_state())
+      continue;
+    acquire(&tickslock);
+    if (ticks - prev > 500) {
+      print_traces();
+      prev = ticks;
+    }
+    release(&tickslock);
+  }
+}
+
+int
 sys_sbrk(void)
 {
   int addr;
