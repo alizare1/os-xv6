@@ -576,7 +576,8 @@ print_traces(void)
     "link",
     "mkdir",
     "close",
-    "trace_syscalls"
+    "trace_syscalls",
+    "reverse_number"
     };
 
   acquire(&ptable.lock);
