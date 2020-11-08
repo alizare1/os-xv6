@@ -127,3 +127,13 @@ sys_reverse_number(void)
   cprintf("Kernel: sys_reverse_number() called for number: %d\n" , number);
   return reverse_num(number);
 }
+
+int
+sys_get_children(void)
+{
+  int pid;
+  pid = myproc()->pid;
+  cprintf("\nKernel: in get_children syscall for pid=%d\n\n", pid);
+  print_children(pid);
+  return 1;
+}

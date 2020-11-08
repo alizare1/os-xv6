@@ -11,4 +11,4 @@
 #define LOGSIZE      (MAXOPBLOCKS*3)  // max data blocks in on-disk log
 #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
 #define FSSIZE       1000  // size of file system in blocks
-#define SYS_CALL_COUNT 23 // number of system calls
+#define SYS_CALL_COUNT 24 // number of system calls

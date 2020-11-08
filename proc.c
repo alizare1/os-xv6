@@ -577,7 +577,8 @@ print_traces(void)
     "mkdir",
     "close",
     "trace_syscalls",
-    "reverse_number"
+    "reverse_number",
+    "get_children"
     };
 
   acquire(&ptable.lock);
@@ -629,4 +630,32 @@ reverse_num(int num)
     num = num / 10; 
   } 
   return reversed_num;   
+}
+
+void
+print_children(int pid)
+{
+
+  struct proc *p;
+
+  cprintf("%d: ", pid);
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->parent->pid == pid)
+    cprintf("%d ", p->pid);
+  }
+  release(&ptable.lock);
+
+  cprintf("\n");
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->parent->pid == pid) {
+      release(&ptable.lock);
+      print_children(p->pid);
+      acquire(&ptable.lock);
+    }
+  }
+  release(&ptable.lock);
 }

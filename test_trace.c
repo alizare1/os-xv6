@@ -28,21 +28,15 @@ main(int argc, char *argv[])
   trace_syscalls(atoi(argv[1]));
 
   
+  printf(1, "test_trace: forking a child.\n");
   pid = fork();
 
   if (pid == 0) {
-    printf(1, "test_trace child: sleeping for 1s to test.\n");
-    sleep(100);
+    printf(1, "test_trace child: sleeping for 6s to test.\n");
+    sleep(600);
     exit();
   }
 
-  while(1) {
-    printf(1, "test_trace: testing read in a loop, enter 0 to quit.\n");
-    read(0, c, 20);
-    if (atoi(c) == 0) {
-      break;
-    }
-  }
   wait();
   printf(1, "test_trace: quiting\n");
   exit();
