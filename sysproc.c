@@ -137,3 +137,49 @@ sys_get_children(void)
   print_children(pid);
   return 1;
 }
+
+int
+sys_print_ps_info(void)
+{
+  print_ps();
+  return 1;
+}
+
+int
+sys_set_queue(void) {
+  int pid, queue;
+  argint(0, &pid);
+  argint(1, &queue);
+  set_queue(pid, queue);
+  return 1;
+}
+
+int
+sys_set_ticket(void) {
+  int pid, ticket;
+  argint(0, &pid);
+  argint(1, &ticket);
+  set_ticket(pid, ticket);
+  return 1;
+}
+
+int
+sys_set_proc_bjf(void) {
+  int pid, pr, ar, er;
+  argint(0, &pid);
+  argint(1, &pr);
+  argint(2, &ar);
+  argint(3, &er);
+  set_bjf(pid, pr, ar, er);
+  return 1;
+}
+
+int
+sys_set_bjf(void) {
+  int pr, ar, er;
+  argint(0, &pr);
+  argint(1, &ar);
+  argint(2, &er);
+  set_bjf(0, pr, ar, er);
+  return 1;
+}

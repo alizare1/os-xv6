@@ -26,6 +26,11 @@ int uptime(void);
 int trace_syscalls(int);
 int reverse_number(void);
 int get_children(void);
+int print_ps_info(void);
+int set_queue(int, int);
+int set_ticket(int, int);
+int set_proc_bjf(int, int, int, int);
+int set_bjf(int, int, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

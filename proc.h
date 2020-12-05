@@ -33,6 +33,7 @@ struct context {
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum sched_names {ROUND_ROBIN, LOTTERY, BJF};
 
 // Per-process state
 struct proc {
@@ -49,7 +50,15 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  int syscalls[SYS_CALL_COUNT];
+  int syscalls[SYS_CALL_COUNT]; // Number of syscalls
+  int sched_queue;             // Scheduling type
+  int lottery_ticket;          // Lottery ticket
+  int priority_ratio;
+  int arrival_ratio;
+  int exec_cycle_ratio;
+  float exec_cycle;
+  uint arrival_time;
+  uint wating;                  // Time waiting to be executed, for aging
 };
 
 // Process memory is laid out contiguously, low addresses first:

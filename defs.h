@@ -125,7 +125,14 @@ void            print_traces(void);
 void            set_trace_state(int);
 int             get_trace_state(void);
 int             reverse_num(int);
-void             print_children(int);
+void            print_children(int);
+void            print_ps(void);
+char*           get_state_string(int);
+int             get_int_len(int);
+float           get_rank(struct proc*);
+void            set_queue(int, int);
+void            set_ticket(int, int);
+void            set_bjf(int, int, int, int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

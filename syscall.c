@@ -106,6 +106,11 @@ extern int sys_uptime(void);
 extern int sys_trace_syscalls(void);
 extern int sys_reverse_number(void);
 extern int sys_get_children(void);
+extern int sys_print_ps_info(void);
+extern int sys_set_queue(void);
+extern int sys_set_ticket(void);
+extern int sys_set_proc_bjf(void);
+extern int sys_set_bjf(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -132,6 +137,11 @@ static int (*syscalls[])(void) = {
 [SYS_trace_syscalls] sys_trace_syscalls,
 [SYS_reverse_number] sys_reverse_number,
 [SYS_get_children] sys_get_children,
+[SYS_print_ps_info] sys_print_ps_info,
+[SYS_set_queue] sys_set_queue,
+[SYS_set_ticket] sys_set_ticket,
+[SYS_set_proc_bjf] sys_set_proc_bjf,
+[SYS_set_bjf] sys_set_bjf,
 };
 
 void
