@@ -58,7 +58,7 @@ struct proc {
   int exec_cycle_ratio;
   float exec_cycle;
   uint arrival_time;
-  uint wating;                  // Time waiting to be executed, for aging
+  uint last_exec;                  // Time waiting to be executed, for aging
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -16,6 +16,7 @@ struct {
 static struct proc *initproc;
 
 int nextpid = 1;
+int DEFAULT_SCHED = 0;
 extern void forkret(void);
 extern void trapret(void);
 
@@ -89,14 +90,12 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->sched_queue = 2;
+  p->sched_queue = 1;
   p->lottery_ticket = 50;
   p->arrival_ratio = 1;
   p->exec_cycle_ratio = 1;
   p->priority_ratio = 1;
-  acquire(&tickslock);
   p->arrival_time = ticks;
-  release(&tickslock);
 
   release(&ptable.lock);
 
@@ -208,6 +207,9 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+
+  if (curproc->pid == 1 || curproc->pid == 2 || curproc->pid == 3)
+      np->sched_queue = ROUND_ROBIN;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -328,7 +330,6 @@ lottery_proc(void)
   int sum = 0;
   int rand;
 
-  acquire(&ptable.lock); // ?
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
     if (p->state != RUNNABLE || p->sched_queue != LOTTERY)
@@ -337,7 +338,6 @@ lottery_proc(void)
   }
 
   rand = rand_int(0, sum);
-  cprintf("SUM: %d\nRAND: %d\n", sum, rand);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
     if (p->state != RUNNABLE || p->sched_queue != LOTTERY)
@@ -349,8 +349,6 @@ lottery_proc(void)
     }
   }
 
-  release(&ptable.lock); // ?
-
   return chosen_p;
 }
 
@@ -359,9 +357,8 @@ bjf_proc(void)
 {
   struct proc* p = 0;
   struct proc* chosen_p = 0;
-  int min_rank = -1, rank;
+  int min_rank = -1, rank= -1;
 
-  acquire(&ptable.lock); // ?
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
     if (p->state != RUNNABLE || p->sched_queue != BJF)
@@ -373,21 +370,47 @@ bjf_proc(void)
     }
   }
 
-  release(&ptable.lock); // ?
+  return chosen_p;
+}
+
+struct proc*
+rr_proc(void)
+{
+  struct proc* p = 0;
+  struct proc* chosen_p = 0;
+  int max_waiting = -1;
+  uint curr_tick;
+
+  curr_tick = ticks;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->state != RUNNABLE || p->sched_queue != ROUND_ROBIN)
+      continue;
+    if (curr_tick - p->last_exec > max_waiting || max_waiting == -1) {
+      chosen_p = p;
+      max_waiting = curr_tick - p->last_exec;
+    }
+  }
 
   return chosen_p;
 }
 
-//PAGEBREAK: 42
-// Per-CPU process scheduler.
-// Each CPU calls scheduler() after setting itself up.
-// Scheduler never returns.  It loops, doing:
-//  - choose a process to run
-//  - swtch to start running that process
-//  - eventually that process transfers control
-//      via swtch back to the scheduler.
 void
-scheduler(void)
+age(void)
+{
+  struct proc* p = 0;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->state != RUNNABLE || p->sched_queue == ROUND_ROBIN)
+      continue;
+
+    if (ticks - p->last_exec > 10000) 
+      p->sched_queue = ROUND_ROBIN;
+  }
+}
+
+void
+default_sched(void)
 {
   struct proc *p;
   struct cpu *c = mycpu();
@@ -417,6 +440,63 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
+    release(&ptable.lock);
+
+  }
+}
+
+//PAGEBREAK: 42
+// Per-CPU process scheduler.
+// Each CPU calls scheduler() after setting itself up.
+// Scheduler never returns.  It loops, doing:
+//  - choose a process to run
+//  - swtch to start running that process
+//  - eventually that process transfers control
+//      via swtch back to the scheduler.
+void
+scheduler(void)
+{
+
+  if (DEFAULT_SCHED == 1)
+    default_sched();
+  
+  struct proc *p;
+  struct cpu *c = mycpu();
+  c->proc = 0;
+
+  for(;;){
+    // Enable interrupts on this processor.
+    sti();
+
+    // Loop over process table looking for process to run.
+
+    acquire(&ptable.lock);
+
+    p = rr_proc();
+    if (p == 0)
+      p = lottery_proc();
+    if (p == 0)
+      p = bjf_proc();
+    if (p == 0) {
+      release(&ptable.lock);
+      continue;
+    }
+    
+    age();
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
+    c->proc = p;
+    switchuvm(p);
+    p->state = RUNNING;
+
+    swtch(&(c->scheduler), p->context);
+    switchkvm();
+
+    // Process is done running for now.
+    // It should have changed its p->state before coming back.
+    c->proc = 0;
+
     release(&ptable.lock);
 
   }
@@ -454,6 +534,8 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE;
+  myproc()->last_exec = ticks;
+  myproc()->exec_cycle += 0.1;
   sched();
   release(&ptable.lock);
 }
@@ -769,7 +851,7 @@ float
 get_rank(struct proc* p)
 {
   return 
-    1.0 / (float)p->lottery_ticket * (float)(p->priority_ratio) 
+    1.0 / (float)p->lottery_ticket * p->priority_ratio
     + p->arrival_time * p->arrival_ratio
     + p->exec_cycle * p->exec_cycle_ratio
     + 1;
@@ -834,8 +916,8 @@ print_ps(void)
       cprintf("%d", (int)get_rank(p));
       for(i = 0; i < 10 - get_int_len((int)get_rank(p)); i++)
         cprintf(" ");
-      cprintf("%d", p->exec_cycle);
-      for(i = 0; i < 10 + 2 - get_int_len(p->exec_cycle_ratio); i++)
+      cprintf("%d", (int)p->exec_cycle*10);
+      for(i = 0; i < 10 + 2 - get_int_len((int)p->exec_cycle*10); i++)
         cprintf(" ");
       cprintf("%d,%d,%d", p->priority_ratio, p->arrival_ratio, p->exec_cycle_ratio);
 
@@ -891,8 +973,6 @@ int
 rand_int(int low, int high)
 {
   int rand;
-  acquire(&tickslock);
   rand = (ticks*ticks*ticks*29927) % (high - low + 1) + low;
-  release(&tickslock);
   return rand;
 }

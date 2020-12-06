@@ -136,6 +136,9 @@ void            set_bjf(int, int, int, int);
 int             rand_int(int, int);
 struct proc*    lottery_proc(void);
 struct proc*    bjf_proc(void);
+struct proc*    rr_proc(void);
+void            default_sched(void);
+void            age(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
