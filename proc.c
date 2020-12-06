@@ -89,7 +89,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->sched_queue = 0;
+  p->sched_queue = 1;
   p->lottery_ticket = 50;
   p->arrival_ratio = 1;
   p->exec_cycle_ratio = 1;
@@ -318,6 +318,40 @@ wait(void)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+}
+
+struct proc*
+lottery_proc(void)
+{
+  struct proc* p = 0;
+  struct proc* chosen_p = 0;
+  int sum = 0;
+  int rand;
+
+  acquire(&ptable.lock); // ?
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->state != RUNNABLE || p->sched_queue != LOTTERY)
+      continue;
+    sum += p->lottery_ticket;
+  }
+
+  rand = rand_int(0, sum);
+  cprintf("SUM: %d\nRAND: %d\n", sum, rand);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->state != RUNNABLE || p->sched_queue != LOTTERY)
+      continue;
+    rand -= p->lottery_ticket;
+    if (rand <= 0) {
+      chosen_p = p;
+      break;
+    }
+  }
+
+  release(&ptable.lock); // ?
+
+  return chosen_p;
 }
 
 //PAGEBREAK: 42
@@ -711,9 +745,10 @@ float
 get_rank(struct proc* p)
 {
   return 
-    1.0 * (float)(p->priority_ratio) 
+    1.0 / (float)p->lottery_ticket * (float)(p->priority_ratio) 
     + p->arrival_time * p->arrival_ratio
-    + p->exec_cycle * p->exec_cycle_ratio;
+    + p->exec_cycle * p->exec_cycle_ratio
+    + 1;
 }
 
 void 

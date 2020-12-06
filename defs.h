@@ -134,6 +134,7 @@ void            set_queue(int, int);
 void            set_ticket(int, int);
 void            set_bjf(int, int, int, int);
 int             rand_int(int, int);
+struct proc*    lottery_proc(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
