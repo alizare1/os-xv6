@@ -827,3 +827,13 @@ set_bjf(int pid, int pr, int ar, int er)
   }
   release(&ptable.lock);
 }
+
+int
+rand_int(int low, int high)
+{
+  int rand;
+  acquire(&tickslock);
+  rand = (ticks*ticks*ticks*29927) % (high - low + 1) + low;
+  release(&tickslock);
+  return rand;
+}
