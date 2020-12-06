@@ -89,7 +89,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->sched_queue = 1;
+  p->sched_queue = 2;
   p->lottery_ticket = 50;
   p->arrival_ratio = 1;
   p->exec_cycle_ratio = 1;
@@ -346,6 +346,30 @@ lottery_proc(void)
     if (rand <= 0) {
       chosen_p = p;
       break;
+    }
+  }
+
+  release(&ptable.lock); // ?
+
+  return chosen_p;
+}
+
+struct proc*
+bjf_proc(void)
+{
+  struct proc* p = 0;
+  struct proc* chosen_p = 0;
+  int min_rank = -1, rank;
+
+  acquire(&ptable.lock); // ?
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){ 
+    if (p->state != RUNNABLE || p->sched_queue != BJF)
+      continue;
+    rank = get_rank(p);
+    if (rank < min_rank || min_rank == -1) {
+      chosen_p = p;
+      min_rank = rank;
     }
   }
 
