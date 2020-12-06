@@ -186,6 +186,7 @@ UPROGS=\
 	_proc_bjf\
 	_bjf\
 	_set_queue\
+	_test_sched\
 	_gpid_test\
 	_test_trace\
 	_reverse\
@@ -258,7 +259,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # check in that version.
 
 EXTRA=\
-	mkfs.c ulib.c user.h lcm.c ps.c set_ticket.c proc_bjf.c bjf.c set_queue.c gpid_test.c test_trace.c reverse.c test_children.c cat.c echo.c forktest.c grep.c kill.c\
+	mkfs.c ulib.c user.h lcm.c ps.c set_ticket.c proc_bjf.c bjf.c set_queue.c test_sched.c gpid_test.c test_trace.c reverse.c test_children.c cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
