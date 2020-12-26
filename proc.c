@@ -1007,6 +1007,7 @@ semaphore_acquire(int i)
     add_to_sem_queue(i, p);
     cprintf("Process %d going to sleep\n", p->pid);
     sleep(p, &(semaphores[i].lock));
+    semaphores[i].curr_procs += 1;
   }
   release(&(semaphores[i].lock));
 
