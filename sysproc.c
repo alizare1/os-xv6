@@ -183,3 +183,32 @@ sys_set_bjf(void) {
   set_bjf(0, pr, ar, er);
   return 1;
 }
+
+int
+sys_semaphore_initialize(void) 
+{
+  int i, v, m;
+  argint(0, &i);
+  argint(1, &v);
+  argint(2, &m);
+
+  return 1;
+}
+
+int
+sys_semaphore_aquire(void) 
+{
+  int i;
+  argint(0, &i);
+
+  return 1;
+}
+
+int
+sys_semaphore_release(void) 
+{
+  int i;
+  argint(0, &i);
+
+  return 1;
+}

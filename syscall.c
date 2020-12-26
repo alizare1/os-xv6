@@ -111,6 +111,9 @@ extern int sys_set_queue(void);
 extern int sys_set_ticket(void);
 extern int sys_set_proc_bjf(void);
 extern int sys_set_bjf(void);
+extern int sys_semaphore_initialize(void);
+extern int sys_semaphore_aquire(void);
+extern int sys_semaphore_release(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -142,6 +145,9 @@ static int (*syscalls[])(void) = {
 [SYS_set_ticket] sys_set_ticket,
 [SYS_set_proc_bjf] sys_set_proc_bjf,
 [SYS_set_bjf] sys_set_bjf,
+[SYS_semaphore_initialize] sys_semaphore_initialize,
+[SYS_semaphore_aquire] sys_semaphore_aquire,
+[SYS_semaphore_release] sys_semaphore_release,
 };
 
 void

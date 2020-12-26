@@ -28,3 +28,6 @@
 #define SYS_set_ticket 27
 #define SYS_set_proc_bjf 28
 #define SYS_set_bjf 29
+#define SYS_semaphore_initialize 30
+#define SYS_semaphore_aquire 31
+#define SYS_semaphore_release 32
