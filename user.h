@@ -32,7 +32,7 @@ int set_ticket(int, int);
 int set_proc_bjf(int, int, int, int);
 int set_bjf(int, int, int);
 int semaphore_initialize(int, int, int);
-int semaphore_aquire(int);
+int semaphore_acquire(int);
 int semaphore_release(int);
 
 // ulib.c

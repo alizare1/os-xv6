@@ -192,16 +192,16 @@ sys_semaphore_initialize(void)
   argint(1, &v);
   argint(2, &m);
 
-  return 1;
+  return semaphore_init(i, v, m);
 }
 
 int
-sys_semaphore_aquire(void) 
+sys_semaphore_acquire(void) 
 {
   int i;
   argint(0, &i);
 
-  return 1;
+  return semaphore_acquire(i);
 }
 
 int
@@ -210,5 +210,5 @@ sys_semaphore_release(void)
   int i;
   argint(0, &i);
 
-  return 1;
+  return semaphore_release(i);
 }

@@ -15,8 +15,16 @@ struct {
 
 static struct proc *initproc;
 
+struct semaphore
+{
+  int max_procs;
+  int curr_procs;
+  struct spinlock lock;
+  struct proc* queue[NPROC];
+} semaphores[SEMAPHORE_COUNT];
+
 int nextpid = 1;
-int DEFAULT_SCHED = 0;
+int DEFAULT_SCHED = 1;
 extern void forkret(void);
 extern void trapret(void);
 
@@ -976,3 +984,84 @@ rand_int(int low, int high)
   rand = (ticks*ticks*ticks*29927) % (high - low + 1) + low;
   return rand;
 }
+
+int
+semaphore_init(int i, int v, int m) 
+{
+  semaphores[i].max_procs = v;
+  semaphores[i].curr_procs = m;
+  
+  return 1;
+}
+
+int 
+semaphore_acquire(int i)
+{
+  struct proc* p = myproc();
+  acquire(&(semaphores[i].lock));
+  if (semaphores[i].curr_procs < semaphores[i].max_procs) {
+    semaphores[i].curr_procs += 1;
+  }
+  else {
+    add_to_sem_queue(i, p);
+    cprintf("Process %d going to sleep\n", p->pid);
+    sleep(p, &(semaphores[i].lock));
+  }
+  release(&(semaphores[i].lock));
+
+  return 1;
+}
+
+int 
+semaphore_release(int i)
+{
+  struct proc* p = 0;
+  acquire(&(semaphores[i].lock));
+  
+  semaphores[i].curr_procs -= 1;
+  p = pop_sem_queue(i);
+  release(&(semaphores[i].lock));
+  if (p != 0) {
+    cprintf("Process %d is waking up\n", p->pid);
+    wakeup(p);
+  }
+  
+  return 1;
+}
+
+// Process must have acquired lock before
+// calling these two functions
+void 
+add_to_sem_queue(int i, struct proc* proc)
+{
+  for (int j = 0; j < NPROC; j++) {
+    if (semaphores[i].queue[j] == 0) {
+      semaphores[i].queue[j] = proc;
+      return;
+    }
+  }
+}
+
+struct proc*
+pop_sem_queue(int i)
+{
+  struct proc* p = 0;
+  int j = 0;
+
+  if (semaphores[i].queue[0] == 0)
+    return 0;
+  
+  p = semaphores[i].queue[0];
+
+  for (j = 0; j < NPROC - 1; j++) {
+    if (semaphores[i].queue[j+1] != 0)
+      semaphores[i].queue[j] = semaphores[i].queue[j+1];
+    else {
+      semaphores[i].queue[j] = 0;
+      break;
+    }
+  }
+
+  return p;
+}
+

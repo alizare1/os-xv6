@@ -139,6 +139,11 @@ struct proc*    bjf_proc(void);
 struct proc*    rr_proc(void);
 void            default_sched(void);
 void            age(void);
+int             semaphore_init(int, int, int);
+int             semaphore_acquire(int);
+int             semaphore_release(int);
+void            add_to_sem_queue(int, struct proc*);
+struct proc*    pop_sem_queue(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
