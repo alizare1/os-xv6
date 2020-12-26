@@ -4,30 +4,61 @@
 #include "fcntl.h"
 
 
+#define MUTEX 0
+#define FULL 1
+#define EMPTY 2
+
+#define BUFF_SIZE 5
+
+int buf[BUFF_SIZE];
+uint w_index = 0;
+uint r_index = 0;
+
+
+void
+producer()
+{
+  int i = 0;
+  while (i++ < 10) {
+    semaphore_acquire(EMPTY);
+    semaphore_acquire(MUTEX);
+
+    printf(1, "PRODUCER: wrote item %d to index %d\n", w_index, w_index % BUFF_SIZE);
+
+    semaphore_release(MUTEX);
+    semaphore_release(FULL);
+    w_index++;
+  }
+}
+
+void
+consumer()
+{
+  int i = 0;
+
+  while(i++ < 10) {
+    semaphore_acquire(FULL);
+    semaphore_acquire(MUTEX);
+
+    printf(1, "CONSUMER: read item %d from index %d\n", r_index, r_index % BUFF_SIZE);
+
+    semaphore_release(MUTEX);
+    semaphore_release(EMPTY);
+    r_index++;
+  }
+}
 
 int
 main(int argc, char *argv[])
 {
-  int i = 0;
+  semaphore_initialize(MUTEX, 1, 0);
+  semaphore_initialize(FULL, BUFF_SIZE, BUFF_SIZE);
+  semaphore_initialize(EMPTY, BUFF_SIZE, 0);
 
-  semaphore_initialize(i, 1, 0);
-  semaphore_acquire(i);
-  if (fork() == 0) {
-      semaphore_acquire(i);
-      printf(1, "Child got the semaphore\n");
-      semaphore_release(i);
-      exit();
-  }
-  if (fork() == 0) {
-      semaphore_acquire(i);
-      printf(1, "Child got the semaphore\n");    
-      semaphore_release(i);
-      exit();
-  }
-  printf(1, "Parent got the semaphore\n");
-  sleep(100);
-  semaphore_release(i);
-  wait();
-  wait();
+  if (fork() == 0)
+    consumer();
+  else
+    producer();
+
   exit();
 }
