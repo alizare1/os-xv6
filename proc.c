@@ -990,7 +990,7 @@ semaphore_init(int i, int v, int m)
 {
   semaphores[i].max_procs = v;
   semaphores[i].curr_procs = m;
-  initlock(&(semaphores[i].lock), i + '0');
+  initlock(&(semaphores[i].lock), (char*)i + '0');
   
   return 1;
 }
