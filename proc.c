@@ -1007,6 +1007,7 @@ semaphore_acquire(int i)
     add_to_sem_queue(i, p);
     cprintf("Process %d going to sleep\n", p->pid);
     sleep(p, &(semaphores[i].lock));
+    cprintf("Process %d woke up\n", p->pid);
     semaphores[i].curr_procs += 1;
   }
   release(&(semaphores[i].lock));
@@ -1024,7 +1025,6 @@ semaphore_release(int i)
   p = pop_sem_queue(i);
   release(&(semaphores[i].lock));
   if (p != 0) {
-    cprintf("Process %d is waking up\n", p->pid);
     wakeup(p);
   }
   

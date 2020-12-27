@@ -37,6 +37,7 @@ consumer()
   int i = 0;
 
   while(i++ < 10) {
+    sleep(5);
     semaphore_acquire(FULL);
     semaphore_acquire(MUTEX);
 
@@ -55,10 +56,18 @@ main(int argc, char *argv[])
   semaphore_initialize(FULL, BUFF_SIZE, BUFF_SIZE);
   semaphore_initialize(EMPTY, BUFF_SIZE, 0);
 
+  // semaphore_acquire(MUTEX);
+  // if (fork() == 0)
+  //   semaphore_acquire(MUTEX);
+  // semaphore_release(MUTEX);
+  // semaphore_release(MUTEX);
+
   if (fork() == 0)
     consumer();
   else
     producer();
+
+  wait();
 
   exit();
 }
