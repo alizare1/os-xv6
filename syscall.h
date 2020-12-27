@@ -33,3 +33,4 @@
 #define SYS_semaphore_release 32
 #define SYS_cv_signal 33
 #define SYS_cv_wait 34
+#define SYS_rw_problem 35

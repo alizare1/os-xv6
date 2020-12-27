@@ -37,6 +37,7 @@ int semaphore_acquire(int);
 int semaphore_release(int);
 int cv_signal(struct condvar*);
 int cv_wait(struct condvar*);
+int rw_problem(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

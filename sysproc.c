@@ -233,3 +233,63 @@ sys_cv_wait(void)
   sleep1(var);
   return 1;
 }
+
+
+#define READER 0
+#define WRITER 1
+struct condvar r_var = {.lock.locked = 0};
+struct spinlock lk = {.locked = 0};
+int w = 0;
+int readers_count = 0;
+int writers_count = 0;
+int is_writing = 0;
+int is_reading = 0;
+
+int
+sys_rw_problem(void)
+{
+  int who;
+  argint(0, &who);
+  
+  int i = 0;
+  while (i++ < 1) {
+
+    if (who == READER) {
+      acquire(&lk);
+      readers_count++;
+      while (is_writing)
+        sleep(&r_var, &lk);
+      is_reading++;
+      release(&lk);
+
+      cprintf("Reader PID %d: read %d\n", myproc()->pid, w);
+      
+      acquire(&lk);
+      is_reading--;
+      readers_count--;
+      wakeup(&r_var);
+      release(&lk);
+    }
+
+
+    else if (who == WRITER) {
+      acquire(&lk);
+      if (readers_count > 0)
+        sleep(&r_var, &lk);
+      while (is_reading || is_writing)
+        sleep(&r_var, &lk);
+      is_writing++;
+      release(&lk);
+
+      w++;
+      cprintf("Writer PID %d: wrote %d\n", myproc()->pid, w);
+
+      acquire(&lk);
+      is_writing--;
+      wakeup(&r_var);
+      release(&lk);
+    }
+  }
+
+  return 0;
+}
