@@ -1,5 +1,6 @@
 struct stat;
 struct rtcdate;
+struct condvar;
 
 // system calls
 int fork(void);
@@ -34,6 +35,8 @@ int set_bjf(int, int, int);
 int semaphore_initialize(int, int, int);
 int semaphore_acquire(int);
 int semaphore_release(int);
+int cv_signal(struct condvar*);
+int cv_wait(struct condvar*);
 
 // ulib.c
 int stat(const char*, struct stat*);

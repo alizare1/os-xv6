@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "condvar.h"
 
 int
 sys_fork(void)
@@ -211,4 +212,24 @@ sys_semaphore_release(void)
   argint(0, &i);
 
   return semaphore_release(i);
+}
+
+int
+sys_cv_signal(void)
+{
+  // struct condvar* var;
+  char* var;
+  argptr(0, &var, sizeof(struct condvar*));
+  wakeup(var);
+  return 1;
+}
+
+int
+sys_cv_wait(void)
+{
+  // struct condvar* var;
+  char* var;
+  argptr(0, &var, sizeof(struct condvar*));
+  sleep1(var);
+  return 1;
 }

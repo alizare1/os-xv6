@@ -144,6 +144,7 @@ int             semaphore_acquire(int);
 int             semaphore_release(int);
 void            add_to_sem_queue(int, struct proc*);
 struct proc*    pop_sem_queue(int);
+void            sleep1(void*);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
