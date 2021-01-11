@@ -34,3 +34,5 @@
 #define SYS_cv_signal 33
 #define SYS_cv_wait 34
 #define SYS_rw_problem 35
+#define SYS_get_free_pages_count 36
+#define SYS_mmap 37

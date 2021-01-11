@@ -117,6 +117,8 @@ extern int sys_semaphore_release(void);
 extern int sys_cv_signal(void);
 extern int sys_cv_wait(void);
 extern int sys_rw_problem(void);
+extern int sys_get_free_pages_count(void);
+extern int sys_mmap(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -154,6 +156,8 @@ static int (*syscalls[])(void) = {
 [SYS_cv_signal] sys_cv_signal,
 [SYS_cv_wait] sys_cv_wait,
 [SYS_rw_problem] sys_rw_problem,
+[SYS_get_free_pages_count] sys_get_free_pages_count,
+[SYS_mmap] sys_mmap,
 };
 
 void
