@@ -446,8 +446,7 @@ sys_pipe(void)
 int
 sys_get_free_pages_count(void)
 {
-
-  return 0;
+  return get_free_count();
 }
 
 int

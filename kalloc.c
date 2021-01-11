@@ -94,3 +94,18 @@ kalloc(void)
   return (char*)r;
 }
 
+int
+get_free_count(void)
+{
+  struct run *r;
+  int count = 0;
+  
+  r = kmem.freelist;
+  while(r) {
+    count++;
+    r = r->next;
+  }
+
+  return count;
+}
+
