@@ -104,6 +104,7 @@ found:
   p->exec_cycle_ratio = 1;
   p->priority_ratio = 1;
   p->arrival_time = ticks;
+  p->top_addr = (char*) 0x40000000;
 
   release(&ptable.lock);
 

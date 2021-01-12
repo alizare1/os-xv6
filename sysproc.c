@@ -293,3 +293,34 @@ sys_rw_problem(void)
 
   return 0;
 }
+
+char*
+sys_mmap(void)
+{
+  void* addr=0;
+  uint length, offset;
+  int prot, flags, fd;
+  struct proc *p = myproc();
+
+  argptr(0, addr, sizeof(void*));
+  argint(1, (int*)&length);
+  argint(2, &prot);
+  argint(3, &flags);
+  argint(4, &fd);
+  argint(5, (int*)&offset);
+
+  length = PGROUNDUP(length);
+
+  struct mapped_mem *m = &(p->mm[p->map_count]);
+  p->map_count++;
+  m->start = p->top_addr;
+  m->end = m->start + length;
+  p->top_addr = m->end;
+  m->fd = fd;
+  m->len = length;
+  m->prot = prot;
+  m->file = p->ofile[fd];
+  filedup(m->file);
+
+  return m->start;
+}

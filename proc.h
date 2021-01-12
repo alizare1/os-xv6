@@ -35,6 +35,15 @@ struct context {
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 enum sched_names {ROUND_ROBIN, LOTTERY, BJF};
 
+struct mapped_mem {
+  char* start;
+  char* end;
+  uint len;
+  int fd;
+  struct file* file;
+  int prot;
+};
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -59,6 +68,9 @@ struct proc {
   float exec_cycle;
   uint arrival_time;
   uint last_exec;                  // Time waiting to be executed, for aging
+  struct mapped_mem mm[16];
+  char* top_addr;
+  int map_count;
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -155,3 +155,12 @@ filewrite(struct file *f, char *addr, int n)
   panic("filewrite");
 }
 
+int
+pg_read(struct file *f, char *addr, int n)
+{
+  int i;
+  ilock(f->ip);
+  i = readi(f->ip, addr, 0, n);
+  iunlock(f->ip);
+  return i;
+}

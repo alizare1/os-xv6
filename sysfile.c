@@ -448,9 +448,3 @@ sys_get_free_pages_count(void)
 {
   return get_free_count();
 }
-
-int
-sys_mmap(void)
-{
-  return 0;
-}

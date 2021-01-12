@@ -180,6 +180,7 @@ UPROGS=\
 	_stressfs\
 	_usertests\
 	_wc\
+	_mmap_test\
 	_lcm\
 	_free_page_test\
 	_rw_problem\
@@ -188,7 +189,6 @@ UPROGS=\
 	_ps\
 	_set_ticket\
 	_proc_bjf\
-	_bjf\
 	_set_queue\
 	_foo\
 	_gpid_test\
@@ -263,7 +263,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # check in that version.
 
 EXTRA=\
-	mkfs.c ulib.c user.h lcm.c free_page_test.c rw_problem.c cv_test.c sem_test.c ps.c set_ticket.c proc_bjf.c bjf.c set_queue.c foo.c gpid_test.c test_trace.c reverse.c test_children.c cat.c echo.c forktest.c grep.c kill.c\
+	mkfs.c ulib.c user.h mmap_test.c lcm.c free_page_test.c rw_problem.c cv_test.c sem_test.c ps.c set_ticket.c proc_bjf.c set_queue.c foo.c gpid_test.c test_trace.c reverse.c test_children.c cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\

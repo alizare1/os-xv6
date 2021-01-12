@@ -86,6 +86,11 @@ trap(struct trapframe *tf)
               tf->trapno, cpuid(), tf->eip, rcr2());
       panic("trap");
     }
+
+  // PAGE FAULT
+    if (handle_pgflt((char*) rcr2()) == 1)
+      break;
+  
     // In user space, assume process misbehaved.
     cprintf("pid %d %s: trap %d err %d on cpu %d "
             "eip 0x%x addr 0x%x--kill proc\n",

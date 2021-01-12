@@ -392,3 +392,33 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
 //PAGEBREAK!
 // Blank page.
 
+int
+handle_pgflt(char* addr)
+{
+  struct proc* p = myproc();
+  struct mapped_mem* tmp; 
+  struct mapped_mem* m = 0;
+
+  for (int i = 0; i < p->map_count; i++) {
+    tmp = &p->mm[i];
+    if (addr >= tmp->start && addr < tmp->end) {
+      m = tmp;
+      break;
+    }
+  }
+
+  if (m == 0)
+    return -1;
+
+  cprintf("kernel: %d\n", get_free_count());
+  char* newpg = kalloc();
+  cprintf("kernel: %d\n", get_free_count());
+
+  memset(newpg, 0, PGSIZE);
+  char* start_addr = (char*)PGROUNDDOWN((uint)addr);
+  mappages(p->pgdir, start_addr, PGSIZE, V2P(newpg), PTE_W|PTE_U);
+  pg_read(m->file, start_addr, PGSIZE);
+
+  return 1;
+}
+
