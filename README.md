@@ -1,11 +1,11 @@
-# OS xv6
+# xv6
 
-## Group:
+Modifications to [xv6](https://github.com/mit-pdos/xv6-public) for Lab assignments of Operating Systems course at University of Tehran
 
-1- Mahdi Jahani
+## Group Members:
 
-2- Ali Bahari
-
-3- Mohammad Ali Zare
+1. Mahdi Jahani
+2. Ali Bahari
+3. Ali Zare
 
 
